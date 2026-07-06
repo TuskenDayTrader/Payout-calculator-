@@ -159,6 +159,15 @@ function MetricCard({
   );
 }
 
+function tooltipCurrency(
+  value: number | string | readonly (number | string)[] | undefined,
+) {
+  const normalizedValue = Array.isArray(value) ? value[0] : value;
+  return formatCurrency(
+    typeof normalizedValue === "number" ? normalizedValue : Number(normalizedValue ?? 0),
+  );
+}
+
 export function TradeifyCalculatorApp() {
   const store = useTradeifyStore();
   const [shareFeedback, setShareFeedback] = useState<string>("");
@@ -307,7 +316,7 @@ export function TradeifyCalculatorApp() {
     const payload = {
       profile: store.profile,
       metrics: store.metrics,
-      selectedRuleVersionId,
+      selectedRuleVersionId: selectedVersionId,
       projectedDaysText: store.projectedDaysText,
       desiredWeeklyPayout: store.desiredWeeklyPayout,
       numberOfAccounts: store.numberOfAccounts,
@@ -1009,7 +1018,7 @@ export function TradeifyCalculatorApp() {
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" />
                   <XAxis dataKey="day" tick={{ fill: "currentColor", fontSize: 12 }} />
                   <YAxis tickFormatter={(value) => `$${value}`} tick={{ fill: "currentColor", fontSize: 12 }} />
-                  <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                  <Tooltip formatter={tooltipCurrency} />
                   <Legend />
                   <Line dataKey="cycleProfit" name="Cycle profit" stroke="#5eead4" strokeWidth={2} />
                   <Line dataKey="maxSafeRequest" name="Safe max request" stroke="#60a5fa" strokeWidth={2} />
@@ -1025,7 +1034,7 @@ export function TradeifyCalculatorApp() {
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(148, 163, 184, 0.2)" />
                   <XAxis dataKey="day" tick={{ fill: "currentColor", fontSize: 12 }} />
                   <YAxis tickFormatter={(value) => `$${value}`} tick={{ fill: "currentColor", fontSize: 12 }} />
-                  <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                  <Tooltip formatter={tooltipCurrency} />
                   <Bar dataKey="projectedProfit" fill="#fdb022" name="Projected day result" />
                 </BarChart>
               </ResponsiveContainer>
