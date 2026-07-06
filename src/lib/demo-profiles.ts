@@ -1,0 +1,73 @@
+import type { DemoProfile } from "@/lib/models";
+
+export const DEMO_PROFILES: DemoProfile[] = [
+  {
+    id: "growth-balance-builder",
+    label: "Growth / Balance Builder",
+    description: "A near-eligible 50K Growth account with buffer to plan a balanced request.",
+    profile: {
+      accountType: "Growth",
+      accountSize: "50K",
+      payoutNumber: 2,
+      nickname: "Balanced 50K",
+    },
+    metrics: {
+      currentBalance: 53400,
+      trailingDrawdownLine: 51750,
+      currentCycleProfit: 2600,
+      bestDayProfit: 690,
+      profitableDays: 6,
+      qualifyingDays: 5,
+      totalProfit: 2600,
+      desiredSafetyCushion: 900,
+      requestAmount: 1300,
+      microscalpingCompliant: true,
+    },
+  },
+  {
+    id: "select-daily-rhythm",
+    label: "Select / Daily Rhythm",
+    description: "Daily-eligible setup aimed at consistent smaller payouts across multiple accounts.",
+    profile: {
+      accountType: "Select",
+      accountSize: "100K",
+      payoutNumber: 4,
+      nickname: "Daily Select",
+    },
+    metrics: {
+      currentBalance: 103850,
+      trailingDrawdownLine: 101900,
+      currentCycleProfit: 1850,
+      bestDayProfit: 420,
+      profitableDays: 4,
+      qualifyingDays: 4,
+      totalProfit: 1850,
+      desiredSafetyCushion: 1250,
+      requestAmount: 900,
+      microscalpingCompliant: true,
+    },
+  },
+  {
+    id: "lightning-first-payout",
+    label: "Lightning / First Payout",
+    description: "A first-payout Lightning profile showing stricter consistency and cap logic.",
+    profile: {
+      accountType: "Lightning",
+      accountSize: "100K",
+      payoutNumber: 1,
+      nickname: "Lightning #1",
+    },
+    metrics: {
+      currentBalance: 101900,
+      trailingDrawdownLine: 100450,
+      currentCycleProfit: 1600,
+      bestDayProfit: 640,
+      profitableDays: 3,
+      qualifyingDays: 2,
+      totalProfit: 1600,
+      desiredSafetyCushion: 950,
+      requestAmount: 700,
+      microscalpingCompliant: true,
+    },
+  },
+];
