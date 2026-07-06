@@ -1,0 +1,471 @@
+{
+  "rulesetId": "tradeify-payout-engine",
+  "label": "Tradeify payout calculator seeds",
+  "lastUpdated": "2026-07-06T00:00:00Z",
+  "versions": [
+    {
+      "versionId": "legacy-2025-09",
+      "label": "Legacy rules",
+      "effectiveFrom": "2025-09-01",
+      "updatedAt": "2025-09-01T00:00:00Z",
+      "notes": [
+        "Legacy profile for earlier funded accounts.",
+        "Use this when an account is still governed by pre-2026 payout terms."
+      ],
+      "futureUpdatePlaceholders": [
+        "Review qualifying day requirements when Tradeify publishes historical policy clarifications.",
+        "Review payout caps whenever platform notices announce revised funded-account limits."
+      ],
+      "baseRules": {
+        "totalProfitMin": 1500,
+        "minRequest": 500,
+        "payoutCap": 2500,
+        "payoutSplitPercent": 90,
+        "consistencyCapPercent": 30,
+        "qualifyingProfitableDays": 5,
+        "qualifyingDayProfit": 200,
+        "cadence": "every-5-profitable-days",
+        "desiredSafetyCushionDefault": 900,
+        "requiresMicroscalpingFlag": true,
+        "notes": [
+          "Base rules apply unless a lower layer overrides them."
+        ]
+      },
+      "accountTypes": [
+        {
+          "accountType": "Growth",
+          "overrides": {
+            "notes": [
+              "Growth follows the baseline cadence in legacy mode."
+            ]
+          },
+          "sizes": [
+            {
+              "accountSize": "25K",
+              "overrides": {
+                "payoutCap": 1500,
+                "desiredSafetyCushionDefault": 600
+              }
+            },
+            {
+              "accountSize": "50K",
+              "overrides": {
+                "payoutCap": 2500,
+                "desiredSafetyCushionDefault": 900
+              }
+            },
+            {
+              "accountSize": "100K",
+              "overrides": {
+                "payoutCap": 3500,
+                "desiredSafetyCushionDefault": 1200
+              }
+            },
+            {
+              "accountSize": "150K",
+              "overrides": {
+                "payoutCap": 4500,
+                "desiredSafetyCushionDefault": 1500
+              }
+            }
+          ]
+        },
+        {
+          "accountType": "Select",
+          "overrides": {
+            "totalProfitMin": 1200,
+            "qualifyingProfitableDays": 1,
+            "cadence": "daily-eligible",
+            "notes": [
+              "Select accounts can request daily once the initial qualifying day is logged."
+            ]
+          },
+          "sizes": [
+            {
+              "accountSize": "25K",
+              "overrides": {
+                "payoutCap": 1250,
+                "desiredSafetyCushionDefault": 600
+              }
+            },
+            {
+              "accountSize": "50K",
+              "overrides": {
+                "payoutCap": 2250,
+                "desiredSafetyCushionDefault": 850
+              }
+            },
+            {
+              "accountSize": "100K",
+              "overrides": {
+                "payoutCap": 3250,
+                "desiredSafetyCushionDefault": 1100
+              }
+            },
+            {
+              "accountSize": "150K",
+              "overrides": {
+                "payoutCap": 4250,
+                "desiredSafetyCushionDefault": 1350
+              }
+            }
+          ]
+        },
+        {
+          "accountType": "Lightning",
+          "overrides": {
+            "totalProfitMin": 1000,
+            "minRequest": 250,
+            "qualifyingProfitableDays": 0,
+            "cadence": "no-minimum-day-count",
+            "notes": [
+              "Lightning removes the minimum day count but changes consistency and payout caps by payout number."
+            ]
+          },
+          "sizes": [
+            {
+              "accountSize": "50K",
+              "overrides": {
+                "desiredSafetyCushionDefault": 750
+              },
+              "payoutNumberRules": [
+                {
+                  "minPayoutNumber": 1,
+                  "maxPayoutNumber": 1,
+                  "label": "First payout",
+                  "overrides": {
+                    "consistencyCapPercent": 45,
+                    "payoutCap": 1250
+                  },
+                  "nextChangeHint": "Payout #2 tightens the cap and lifts the payout ceiling."
+                },
+                {
+                  "minPayoutNumber": 2,
+                  "maxPayoutNumber": 2,
+                  "label": "Second payout",
+                  "overrides": {
+                    "consistencyCapPercent": 40,
+                    "payoutCap": 1750
+                  },
+                  "nextChangeHint": "Payout #3+ shifts to the recurring Lightning tier."
+                },
+                {
+                  "minPayoutNumber": 3,
+                  "label": "Third+ payout",
+                  "overrides": {
+                    "consistencyCapPercent": 35,
+                    "payoutCap": 2250
+                  }
+                }
+              ]
+            },
+            {
+              "accountSize": "100K",
+              "overrides": {
+                "desiredSafetyCushionDefault": 950
+              },
+              "payoutNumberRules": [
+                {
+                  "minPayoutNumber": 1,
+                  "maxPayoutNumber": 1,
+                  "label": "First payout",
+                  "overrides": {
+                    "consistencyCapPercent": 45,
+                    "payoutCap": 2000
+                  },
+                  "nextChangeHint": "Payout #2 keeps no day minimums but uses a lower consistency allowance."
+                },
+                {
+                  "minPayoutNumber": 2,
+                  "maxPayoutNumber": 2,
+                  "label": "Second payout",
+                  "overrides": {
+                    "consistencyCapPercent": 40,
+                    "payoutCap": 2750
+                  },
+                  "nextChangeHint": "Payout #3+ becomes the steady-state Lightning tier."
+                },
+                {
+                  "minPayoutNumber": 3,
+                  "label": "Third+ payout",
+                  "overrides": {
+                    "consistencyCapPercent": 35,
+                    "payoutCap": 3500
+                  }
+                }
+              ]
+            },
+            {
+              "accountSize": "150K",
+              "overrides": {
+                "desiredSafetyCushionDefault": 1250
+              },
+              "payoutNumberRules": [
+                {
+                  "minPayoutNumber": 1,
+                  "maxPayoutNumber": 1,
+                  "label": "First payout",
+                  "overrides": {
+                    "consistencyCapPercent": 45,
+                    "payoutCap": 2500
+                  },
+                  "nextChangeHint": "Payout #2 allows a slightly larger request but keeps the same no-day-count behavior."
+                },
+                {
+                  "minPayoutNumber": 2,
+                  "maxPayoutNumber": 2,
+                  "label": "Second payout",
+                  "overrides": {
+                    "consistencyCapPercent": 40,
+                    "payoutCap": 3250
+                  },
+                  "nextChangeHint": "Payout #3+ becomes the recurring Lightning tier."
+                },
+                {
+                  "minPayoutNumber": 3,
+                  "label": "Third+ payout",
+                  "overrides": {
+                    "consistencyCapPercent": 35,
+                    "payoutCap": 4250
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "versionId": "current-2026-02",
+      "label": "Current rules",
+      "effectiveFrom": "2026-02-01",
+      "updatedAt": "2026-07-06T00:00:00Z",
+      "notes": [
+        "Primary seed for newer accounts.",
+        "Use this version to model newer Lightning policy behavior with payout-tier inheritance."
+      ],
+      "futureUpdatePlaceholders": [
+        "Replace placeholder payout caps when Tradeify posts formal Lightning revisions.",
+        "Confirm whether new funded accounts keep the same minimum request floor for all sizes."
+      ],
+      "baseRules": {
+        "totalProfitMin": 1500,
+        "minRequest": 500,
+        "payoutCap": 2750,
+        "payoutSplitPercent": 90,
+        "consistencyCapPercent": 30,
+        "qualifyingProfitableDays": 5,
+        "qualifyingDayProfit": 200,
+        "cadence": "every-5-profitable-days",
+        "desiredSafetyCushionDefault": 950,
+        "requiresMicroscalpingFlag": true,
+        "notes": [
+          "Base 2026 policy values are intentionally data-driven for safe admin edits."
+        ]
+      },
+      "accountTypes": [
+        {
+          "accountType": "Growth",
+          "overrides": {
+            "notes": [
+              "Growth uses the baseline five qualifying-day cadence in the current profile."
+            ]
+          },
+          "sizes": [
+            {
+              "accountSize": "25K",
+              "overrides": {
+                "payoutCap": 1750,
+                "desiredSafetyCushionDefault": 650
+              }
+            },
+            {
+              "accountSize": "50K",
+              "overrides": {
+                "payoutCap": 2750,
+                "desiredSafetyCushionDefault": 950
+              }
+            },
+            {
+              "accountSize": "100K",
+              "overrides": {
+                "payoutCap": 3750,
+                "desiredSafetyCushionDefault": 1250
+              }
+            },
+            {
+              "accountSize": "150K",
+              "overrides": {
+                "payoutCap": 4750,
+                "desiredSafetyCushionDefault": 1550
+              }
+            }
+          ]
+        },
+        {
+          "accountType": "Select",
+          "overrides": {
+            "totalProfitMin": 1200,
+            "qualifyingProfitableDays": 1,
+            "cadence": "daily-eligible",
+            "notes": [
+              "Select emphasizes daily cadence with lower required total profit."
+            ]
+          },
+          "sizes": [
+            {
+              "accountSize": "25K",
+              "overrides": {
+                "payoutCap": 1500,
+                "desiredSafetyCushionDefault": 650
+              }
+            },
+            {
+              "accountSize": "50K",
+              "overrides": {
+                "payoutCap": 2500,
+                "desiredSafetyCushionDefault": 900
+              }
+            },
+            {
+              "accountSize": "100K",
+              "overrides": {
+                "payoutCap": 3500,
+                "desiredSafetyCushionDefault": 1150
+              }
+            },
+            {
+              "accountSize": "150K",
+              "overrides": {
+                "payoutCap": 4500,
+                "desiredSafetyCushionDefault": 1400
+              }
+            }
+          ]
+        },
+        {
+          "accountType": "Lightning",
+          "overrides": {
+            "totalProfitMin": 1000,
+            "minRequest": 250,
+            "qualifyingProfitableDays": 0,
+            "cadence": "no-minimum-day-count",
+            "notes": [
+              "Lightning current profile explicitly models newer account logic and no minimum day count."
+            ]
+          },
+          "sizes": [
+            {
+              "accountSize": "50K",
+              "overrides": {
+                "desiredSafetyCushionDefault": 800
+              },
+              "payoutNumberRules": [
+                {
+                  "minPayoutNumber": 1,
+                  "maxPayoutNumber": 1,
+                  "label": "First payout",
+                  "overrides": {
+                    "consistencyCapPercent": 40,
+                    "payoutCap": 1500
+                  },
+                  "nextChangeHint": "Payout #2 reduces the cap to 35% and raises the request ceiling."
+                },
+                {
+                  "minPayoutNumber": 2,
+                  "maxPayoutNumber": 2,
+                  "label": "Second payout",
+                  "overrides": {
+                    "consistencyCapPercent": 35,
+                    "payoutCap": 2000
+                  },
+                  "nextChangeHint": "Payout #3+ becomes the recurring steady-state tier."
+                },
+                {
+                  "minPayoutNumber": 3,
+                  "label": "Third+ payout",
+                  "overrides": {
+                    "consistencyCapPercent": 30,
+                    "payoutCap": 2500
+                  }
+                }
+              ]
+            },
+            {
+              "accountSize": "100K",
+              "overrides": {
+                "desiredSafetyCushionDefault": 1000
+              },
+              "payoutNumberRules": [
+                {
+                  "minPayoutNumber": 1,
+                  "maxPayoutNumber": 1,
+                  "label": "First payout",
+                  "overrides": {
+                    "consistencyCapPercent": 40,
+                    "payoutCap": 2500
+                  },
+                  "nextChangeHint": "Payout #2 lowers the best-day allowance and raises the cap."
+                },
+                {
+                  "minPayoutNumber": 2,
+                  "maxPayoutNumber": 2,
+                  "label": "Second payout",
+                  "overrides": {
+                    "consistencyCapPercent": 35,
+                    "payoutCap": 3000
+                  },
+                  "nextChangeHint": "Payout #3+ becomes the recurring steady-state tier."
+                },
+                {
+                  "minPayoutNumber": 3,
+                  "label": "Third+ payout",
+                  "overrides": {
+                    "consistencyCapPercent": 30,
+                    "payoutCap": 3500
+                  }
+                }
+              ]
+            },
+            {
+              "accountSize": "150K",
+              "overrides": {
+                "desiredSafetyCushionDefault": 1300
+              },
+              "payoutNumberRules": [
+                {
+                  "minPayoutNumber": 1,
+                  "maxPayoutNumber": 1,
+                  "label": "First payout",
+                  "overrides": {
+                    "consistencyCapPercent": 40,
+                    "payoutCap": 3000
+                  },
+                  "nextChangeHint": "Payout #2 keeps the same cadence but lowers the cap and raises the payout ceiling."
+                },
+                {
+                  "minPayoutNumber": 2,
+                  "maxPayoutNumber": 2,
+                  "label": "Second payout",
+                  "overrides": {
+                    "consistencyCapPercent": 35,
+                    "payoutCap": 3750
+                  },
+                  "nextChangeHint": "Payout #3+ becomes the recurring steady-state tier."
+                },
+                {
+                  "minPayoutNumber": 3,
+                  "label": "Third+ payout",
+                  "overrides": {
+                    "consistencyCapPercent": 30,
+                    "payoutCap": 4500
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

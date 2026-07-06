@@ -1,0 +1,20 @@
+[
+  {
+    "label": "Growth / Balance Builder",
+    "accountType": "Growth",
+    "accountSize": "50K",
+    "payoutNumber": 2
+  },
+  {
+    "label": "Select / Daily Rhythm",
+    "accountType": "Select",
+    "accountSize": "100K",
+    "payoutNumber": 4
+  },
+  {
+    "label": "Lightning / First Payout",
+    "accountType": "Lightning",
+    "accountSize": "100K",
+    "payoutNumber": 1
+  }
+]
