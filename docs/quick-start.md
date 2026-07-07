@@ -1,7 +1,7 @@
 # Quick-start guide
 
 1. Open the dashboard and choose your Tradeify account type, size, rule version, and current payout number.
-2. Enter live account metrics from your platform or use the quick-fill panel to paste screenshot values manually.
+2. Enter live account metrics from your platform, use the quick-fill panel, or import trade history using CSV upload / pasted broker report text.
 3. Review the PASS / WARNING / FAIL dashboard cards to see:
    - whether you are payout-eligible
    - the safest request amount

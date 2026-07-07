@@ -7,6 +7,7 @@ A production-ready, mobile-first Tradeify utility app built with Next.js, TypeSc
 - Data-driven rule engine with JSON seed data, effective dates, inheritance, and payout-tier overrides
 - Dashboard for payout eligibility, safe request sizing, daily targets, and red-flag detection
 - Rule-aware consistency, buffer, payout planner, and cycle simulator calculators
+- Dual trade import modes: broker CSV upload or pasted broker report text (TRADES section)
 - Admin rule editor with safe JSON validation, rules version switching, and last-updated timestamps
 - Local persistence, session snapshots, CSV export, print-to-PDF workflow, and shareable read-only links
 - Demo profiles, formula transparency drawers, dark/light themes, and accessible mobile-first controls
