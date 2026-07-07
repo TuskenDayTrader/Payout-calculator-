@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import {
   Bar,
   BarChart,
@@ -24,6 +24,7 @@ import {
   calculatePayoutPlanner,
   simulateCycle,
 } from "@/lib/calculators";
+import { deriveMetricsFromTrades, parseTradesCsv, parseTradesPdfText } from "@/lib/trade-import";
 import { getDefaultRulesCatalog, getSortedVersions, resolveRules, safeParseRulesCatalog } from "@/lib/rules";
 import type { AccountSize, AccountType, LiveMetrics, StatusTone } from "@/lib/models";
 import { useTradeifyStore } from "@/store/tradeify-store";
@@ -32,6 +33,7 @@ const sections = [
   ["dashboard", "Dashboard"],
   ["setup", "Account Setup"],
   ["metrics", "Live Metrics Input"],
+  ["trade-import", "Trade Import"],
   ["eligibility", "Eligibility Results"],
   ["planner", "Payout Planner"],
   ["deep-dive", "Consistency & Buffer Deep Dive"],
@@ -172,6 +174,10 @@ export function TradeifyCalculatorApp() {
   const store = useTradeifyStore();
   const [shareFeedback, setShareFeedback] = useState<string>("");
   const [snapshotName, setSnapshotName] = useState<string>("");
+  const [tradeImportMode, setTradeImportMode] = useState<"csv" | "pdf">("csv");
+  const [tradeImportText, setTradeImportText] = useState<string>("");
+  const [tradeImportFeedback, setTradeImportFeedback] = useState<string>("");
+  const [tradeImportError, setTradeImportError] = useState<string>("");
   const shareHydratedRef = useRef(false);
 
   const parsedRules = useMemo(() => safeParseRulesCatalog(store.customRulesText), [store.customRulesText]);
@@ -275,6 +281,38 @@ export function TradeifyCalculatorApp() {
 
   const updateMetric = <K extends keyof LiveMetrics>(field: K, value: number | boolean) => {
     store.updateMetrics({ [field]: value } as Partial<LiveMetrics>);
+  };
+
+  const importTrades = (source: "csv" | "pdf", input: string) => {
+    if (!rules) {
+      setTradeImportError("Trade import is unavailable until the active rules validate.");
+      setTradeImportFeedback("");
+      return;
+    }
+
+    try {
+      const trades = source === "csv" ? parseTradesCsv(input) : parseTradesPdfText(input);
+      const metricsPatch = deriveMetricsFromTrades(trades, store.metrics, rules.qualifyingDayProfit);
+      store.updateMetrics(metricsPatch);
+      setTradeImportError("");
+      setTradeImportFeedback(
+        `Imported ${trades.length} trade${trades.length === 1 ? "" : "s"} from ${source === "csv" ? "CSV upload" : "pasted report text"}.`,
+      );
+    } catch (error) {
+      setTradeImportError(error instanceof Error ? error.message : "Trade import failed.");
+      setTradeImportFeedback("");
+    }
+  };
+
+  const handleCsvFileUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    const [file] = event.target.files ?? [];
+    if (!file) {
+      return;
+    }
+
+    const fileText = await file.text();
+    importTrades("csv", fileText);
+    event.target.value = "";
   };
 
   const exportCsv = () => {
@@ -718,6 +756,97 @@ export function TradeifyCalculatorApp() {
               onChange={(value) => updateMetric("bestDayProfit", value)}
             />
           </div>
+        </aside>
+      </section>
+
+      <section className={`${surfaceClasses()} grid gap-6 lg:grid-cols-[1.4fr_1fr]`} id="trade-import">
+        <div>
+          <p className="text-sm uppercase tracking-[0.2em] text-[var(--muted)]">2b. Trade Import</p>
+          <h2 className="mt-2 text-2xl font-semibold">Import trade data from CSV or pasted broker report text</h2>
+          <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
+            Both import modes normalize trades into the same model, then update cycle profit, best day, profitable
+            days, qualifying days, and total profit.
+          </p>
+
+          <div className="mt-5 flex flex-wrap gap-3">
+            <button
+              className={`inline-flex min-h-11 items-center rounded-full px-4 text-sm font-semibold ${
+                tradeImportMode === "csv"
+                  ? "bg-[var(--accent)] text-slate-950"
+                  : "border border-[var(--border)] text-[var(--foreground)]"
+              }`}
+              type="button"
+              onClick={() => setTradeImportMode("csv")}
+            >
+              Upload CSV
+            </button>
+            <button
+              className={`inline-flex min-h-11 items-center rounded-full px-4 text-sm font-semibold ${
+                tradeImportMode === "pdf"
+                  ? "bg-[var(--accent)] text-slate-950"
+                  : "border border-[var(--border)] text-[var(--foreground)]"
+              }`}
+              type="button"
+              onClick={() => setTradeImportMode("pdf")}
+            >
+              Paste broker report text
+            </button>
+          </div>
+
+          {tradeImportMode === "csv" ? (
+            <div className="mt-4 rounded-3xl border border-[var(--border)] bg-black/10 p-4">
+              <InputLabel htmlFor="trade-csv-upload">CSV file</InputLabel>
+              <input
+                aria-label="Trade CSV upload"
+                accept=".csv,text/csv"
+                className="block w-full text-sm"
+                disabled={disabled}
+                id="trade-csv-upload"
+                type="file"
+                onChange={handleCsvFileUpload}
+              />
+            </div>
+          ) : (
+            <div className="mt-4 rounded-3xl border border-[var(--border)] bg-black/10 p-4">
+              <InputLabel htmlFor="trade-report-text">Broker report text</InputLabel>
+              <textarea
+                aria-label="Broker report text"
+                className="min-h-40 w-full rounded-2xl border border-[var(--border)] bg-[var(--panel-strong)] p-4 outline-none focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-soft)]"
+                disabled={disabled}
+                id="trade-report-text"
+                value={tradeImportText}
+                onChange={(event) => setTradeImportText(event.target.value)}
+              />
+              <div className="mt-3">
+                <button
+                  className="inline-flex min-h-11 items-center rounded-full border border-[var(--border)] px-4 text-sm font-semibold"
+                  disabled={disabled}
+                  type="button"
+                  onClick={() => importTrades("pdf", tradeImportText)}
+                >
+                  Parse pasted report
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <aside className="rounded-3xl border border-[var(--border)] bg-black/10 p-4">
+          <h3 className="text-lg font-semibold">Import status</h3>
+          <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
+            Parser errors include row or TRADES line context so malformed entries are easy to fix.
+          </p>
+          {tradeImportFeedback ? (
+            <p className="mt-4 rounded-2xl bg-[var(--success-soft)] p-3 text-sm text-[var(--success)]">{tradeImportFeedback}</p>
+          ) : null}
+          {tradeImportError ? (
+            <p className="mt-4 rounded-2xl bg-[var(--danger-soft)] p-3 text-sm text-[var(--danger)]">{tradeImportError}</p>
+          ) : null}
+          {!tradeImportFeedback && !tradeImportError ? (
+            <p className="mt-4 rounded-2xl bg-[var(--panel-strong)] p-3 text-sm text-[var(--muted)]">
+              No trade import has been run yet.
+            </p>
+          ) : null}
         </aside>
       </section>
 
